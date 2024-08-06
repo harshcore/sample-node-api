@@ -42,9 +42,72 @@ const userAuthController = {
     res.json({
       data: {
         email,
+      },
+    });
+  },
+  resendVerifyEmailOTP: async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || user.isVerified) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "otp",
+            message: "Could not resend OTP",
+          },
+        ],
+      });
+    }
+
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+
+    user.save();
+
+    sendEmail(authEmailOptions.verifyEmail(user, otp));
+    res.json({
+      data: {
+        email,
         otp,
       },
     });
+  },
+  verifyEmail: async (req, res) => {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "otp",
+            message: "User not found",
+          },
+        ],
+      });
+    }
+
+    if (user.otp !== otp || user.otpExpires < new Date()) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "otp",
+            message: "Invalid or expired OTP",
+          },
+        ],
+      });
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Signup successful" });
   },
 };
 

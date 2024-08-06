@@ -26,6 +26,25 @@ const userAuthBodyValidators = {
         "any.required": "Password is required",
       }),
   }),
+  verifyOTP: Joi.object({
+    email: Joi.string().email().required().messages({
+      "string.email": "Invalid email address",
+      "any.required": "Email is required",
+    }),
+    otp: Joi.string()
+      .pattern(/^[0-9]{6}$/)
+      .required()
+      .messages({
+        "string.pattern.base": "OTP should be a 6 digit number",
+        "any.required": "OTP is required",
+      }),
+  }),
+  resendVerifyEmailOTP: Joi.object({
+    email: Joi.string().email().required().messages({
+      "string.email": "Invalid email address",
+      "any.required": "Email is required",
+    }),
+  }),
 };
 
 module.exports = userAuthBodyValidators;

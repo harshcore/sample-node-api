@@ -11,4 +11,16 @@ userAuthRouter.post(
   userAuthController.register
 );
 
+userAuthRouter.post(
+  "/verify-email",
+  validateBody(userAuthBodyValidators.verifyOTP),
+  userAuthController.verifyEmail
+);
+
+userAuthRouter.post(
+  "/resend-verify-email-otp",
+  validateBody(userAuthBodyValidators.resendVerifyEmailOTP),
+  userAuthController.resendVerifyEmailOTP
+);
+
 module.exports = userAuthRouter;
