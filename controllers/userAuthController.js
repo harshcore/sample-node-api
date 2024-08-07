@@ -3,6 +3,7 @@ const sendEmail = require("../transporter");
 const authEmailOptions = require("../transporter/authEmailOptions");
 const generateOTP = require("../utils/otp");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userAuthController = {
   register: async (req, res) => {
@@ -24,7 +25,7 @@ const userAuthController = {
     }
 
     const otp = generateOTP();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user = new User({
@@ -45,6 +46,48 @@ const userAuthController = {
       },
     });
   },
+  login: async (req, res) => {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "email",
+            message: "Invalid email or password",
+          },
+        ],
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "email",
+            message: "Please verify your email before signing in",
+          },
+        ],
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        errors: [
+          {
+            field: "email",
+            message: "Invalid email or password",
+          },
+        ],
+      });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY);
+
+    res.status(200).json({ message: "Signin successful", token });
+  },
   resendVerifyEmailOTP: async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -61,7 +104,7 @@ const userAuthController = {
     }
 
     const otp = generateOTP();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     user.otp = otp;
     user.otpExpires = otpExpires;
@@ -108,6 +151,13 @@ const userAuthController = {
     await user.save();
 
     res.status(200).json({ message: "Signup successful" });
+  },
+  getProfile: async (req, res) => {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
   },
 };
 
