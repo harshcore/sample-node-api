@@ -4,6 +4,7 @@ const CONFIG = require("./config");
 const app = express();
 const mongoose = require("mongoose");
 const userAuthRouter = require("./routers/userAuthRouter");
+const addFriendsRouter = require("./routers/addFriendsRouter");
 
 mongoose
   .connect(CONFIG.MONGO_URI)
@@ -31,6 +32,7 @@ app.get("/status", (req, res) => {
 });
 
 app.use("/user/auth", userAuthRouter);
+app.use("/add-friends", addFriendsRouter);
 
 app.listen(CONFIG.PORT, () => {
   console.log(`server is running at ${CONFIG.PORT}`);
