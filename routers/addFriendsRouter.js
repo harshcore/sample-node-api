@@ -6,7 +6,7 @@ const addFriendsRouter = express.Router();
 
 addFriendsRouter.get(
   "/search",
-  //   authMiddleware,
+  authMiddleware,
   addFriendsController.search_friend
 );
 
