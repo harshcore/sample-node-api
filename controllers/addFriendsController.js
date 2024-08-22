@@ -9,15 +9,19 @@ const addFriendsController = {
       let username = req.query?.username || "";
       let page = parseInt(req.query.page) || 1;
       let limit = parseInt(req.query.limit) || 10;
+      let searchFor = req.query?.searchFor || "search";
 
       let skip = (page - 1) * limit;
 
-      const usersWithConnections = await User.aggregate([
+      let matchCondition = {
+        _id: { $ne: userId },
+      };
+
+      matchCondition.username = { $regex: username, $options: "i" };
+      
+      const aggregationPipeline = [
         {
-          $match: {
-            username: { $regex: username, $options: "i" },
-            _id: { $ne: userId },
-          },
+          $match: matchCondition,
         },
         {
           $lookup: {
@@ -67,13 +71,26 @@ const addFriendsController = {
             },
           },
         },
+      ];
+
+      if (searchFor !== "search") {
+        aggregationPipeline.push({
+          $match: {
+            "connection.status": searchFor,
+          },
+        });
+      }
+
+      aggregationPipeline.push(
         {
           $skip: skip,
         },
         {
           $limit: limit,
-        },
-      ]);
+        }
+      );
+
+      const usersWithConnections = await User.aggregate(aggregationPipeline);
 
       res.status(200).json(usersWithConnections);
     } catch (error) {
