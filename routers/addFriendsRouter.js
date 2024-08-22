@@ -10,4 +10,10 @@ addFriendsRouter.get(
   addFriendsController.search_friend
 );
 
+addFriendsRouter.post(
+  "/send-connection-request",
+  authMiddleware,
+  addFriendsController.send_connection_request
+);
+
 module.exports = addFriendsRouter;

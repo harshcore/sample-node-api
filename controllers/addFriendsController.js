@@ -3,9 +3,36 @@ const Connection = require("../models/Connection");
 const User = require("../models/User");
 
 const addFriendsController = {
+  send_connection_request: async (req, res) => {
+    const { recipientId } = req.body;
+    try {
+      const existingConnection = await Connection.findOne({
+        $or: [
+          { requester: req.bsonUserId, recipient: recipientId },
+          { requester: recipientId, recipient: req.bsonUserId },
+        ],
+      });
+
+      if (existingConnection) {
+        return res.status(400).json({
+          message: "A connection request already exists between these users.",
+        });
+      }
+
+      const connection = new Connection({
+        requester: req.bsonUserId,
+        recipient: recipientId,
+      });
+
+      await connection.save();
+      res.status(200).json({ message: "Connection request sent.", connection });
+    } catch (error) {
+      res.status(500).json({ message: "An error occurred.", error });
+    }
+  },
   search_friend: async (req, res) => {
     try {
-      let userId = new mongoose.Types.ObjectId(req.userId);
+      let userId = req.bsonUserId;
       let username = req.query?.username || "";
       let page = parseInt(req.query.page) || 1;
       let limit = parseInt(req.query.limit) || 10;
@@ -18,7 +45,7 @@ const addFriendsController = {
       };
 
       matchCondition.username = { $regex: username, $options: "i" };
-      
+
       const aggregationPipeline = [
         {
           $match: matchCondition,
