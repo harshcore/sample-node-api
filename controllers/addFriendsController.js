@@ -30,6 +30,34 @@ const addFriendsController = {
       res.status(500).json({ message: "An error occurred.", error });
     }
   },
+  respond_on_connection_request: async (req, res) => {
+    const { connectionId, status } = req.body;
+
+    try {
+      const connection = await Connection.findById(connectionId);
+
+      if (!connection) {
+        return res
+          .status(404)
+          .json({ message: "Connection request not found." });
+      }
+
+      if (req.bsonUserId.equals(connection.recipient)) {
+        connection.status = status; // 'accepted' or 'rejected'
+        await connection.save();
+
+        return res
+          .status(200)
+          .json({ message: `Connection request ${status}.`, connection });
+      } else {
+        return res
+          .status(400)
+          .json({ message: "You can respond on this request!.", error });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "An error occurred.", error });
+    }
+  },
   search_friend: async (req, res) => {
     try {
       let userId = req.bsonUserId;
@@ -92,6 +120,7 @@ const addFriendsController = {
             profile_image: 1,
             isVerified: 1,
             connection: {
+              _id: "$connection._id",
               status: "$connection.status",
               requester: "$connection.requester",
               recipient: "$connection.recipient",
