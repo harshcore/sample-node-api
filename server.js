@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const userAuthRouter = require("./routers/userAuthRouter");
 const addFriendsRouter = require("./routers/addFriendsRouter");
 const connectionsRouter = require("./routers/connectionsRouter");
-const initSocket = require("./socket");
+const { initSocket } = require("./socket");
 
 const cors = require("cors");
 const app = express();
@@ -42,6 +42,12 @@ app.use(
 );
 
 app.use(express.json());
+
+// Middleware to add io to the request object
+// app.use((req, res, next) => {
+//   req.io = io;
+//   next();
+// });
 
 app.get("/status", (req, res) => {
   res.json({

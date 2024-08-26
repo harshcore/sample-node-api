@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
 const Connection = require("../models/Connection");
 const User = require("../models/User");
+const {
+  new_connection_added,
+} = require("../socket/functions/connection_request");
 
 const addFriendsController = {
   send_connection_request: async (req, res) => {
@@ -25,6 +27,7 @@ const addFriendsController = {
       });
 
       await connection.save();
+
       res.status(200).json({ message: "Connection request sent.", connection });
     } catch (error) {
       res.status(500).json({ message: "An error occurred.", error });
@@ -45,6 +48,8 @@ const addFriendsController = {
       if (req.bsonUserId.equals(connection.recipient)) {
         connection.status = status; // 'accepted' or 'rejected'
         await connection.save();
+
+        if (status === "accepted") new_connection_added(connection);
 
         return res
           .status(200)

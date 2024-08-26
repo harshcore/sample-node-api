@@ -2,6 +2,7 @@ const SOCKET_EVENT = {
   CONNECTION: "connection",
 
   CONNECTED: "CONNECTED",
+  NEW_CONNECTION_ADDED: "NEW_CONNECTION_ADDED",
 };
 
 module.exports = SOCKET_EVENT;
