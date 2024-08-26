@@ -5,7 +5,7 @@ const connectionsController = {
     try {
       let userId = req.bsonUserId;
       let limit = parseInt(req.query.limit) || 10;
-      let skip = parseInt(req.query.skip) || 10;
+      let skip = parseInt(req.query.offset) || 0;
 
       const aggregationPipeline = [
         {
