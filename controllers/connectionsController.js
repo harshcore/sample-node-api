@@ -37,8 +37,23 @@ const connectionsController = {
           $unwind: "$recipientDetails",
         },
         {
+          $lookup: {
+            from: "directmessages",
+            localField: "last_message",
+            foreignField: "_id",
+            as: "lastMessageDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$lastMessageDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             status: 1,
+            updatedAt: 1,
             user: {
               $cond: {
                 if: { $eq: ["$requester", userId] },
@@ -60,7 +75,19 @@ const connectionsController = {
                 },
               },
             },
+            last_message: {
+              _id: "$lastMessageDetails._id",
+              content: "$lastMessageDetails.content",
+              sender: "$lastMessageDetails.sender",
+              receiver: "$lastMessageDetails.receiver",
+              status: "$lastMessageDetails.status",
+              createdAt: "$lastMessageDetails.createdAt",
+              updatedAt: "$lastMessageDetails.updatedAt",
+            },
           },
+        },
+        {
+          $sort: { updatedAt: -1 }, // Sort by updatedAt timestamp in descending order
         },
         {
           $skip: skip,

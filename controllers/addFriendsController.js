@@ -1,4 +1,5 @@
 const Connection = require("../models/Connection");
+const DirectMessage = require("../models/DirectMessage");
 const User = require("../models/User");
 const {
   new_connection_added,
@@ -47,6 +48,18 @@ const addFriendsController = {
 
       if (req.bsonUserId.equals(connection.recipient)) {
         connection.status = status; // 'accepted' or 'rejected'
+
+        const new_message = new DirectMessage({
+          on: connection._id,
+          sender: connection.recipient,
+          receiver: connection.requester,
+          content: "You were added in this connection.",
+          type: "system",
+          status: "seen",
+        });
+
+        await new_message.save();
+        connection.last_message = new_message._id;
         await connection.save();
 
         if (status === "accepted") new_connection_added(connection);
