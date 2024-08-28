@@ -11,6 +11,7 @@ const connectionsRouter = require("./routers/connectionsRouter");
 const { initSocket } = require("./socket");
 
 const cors = require("cors");
+const messagesRouter = require("./routers/messagesRouter");
 const app = express();
 const server = http.createServer(app);
 
@@ -58,6 +59,7 @@ app.get("/status", (req, res) => {
 app.use("/user/auth", userAuthRouter);
 app.use("/add-friends", addFriendsRouter);
 app.use("/connections", connectionsRouter);
+app.use("/messages", messagesRouter);
 
 server.listen(CONFIG.PORT, () => {
   console.log(`server is running at ${CONFIG.PORT}`);

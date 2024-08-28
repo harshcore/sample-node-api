@@ -7,8 +7,8 @@ const {
 
 const addFriendsController = {
   send_connection_request: async (req, res) => {
-    const { recipientId } = req.body;
     try {
+      const { recipientId } = req.body;
       const existingConnection = await Connection.findOne({
         $or: [
           { requester: req.bsonUserId, recipient: recipientId },
@@ -62,7 +62,7 @@ const addFriendsController = {
         connection.last_message = new_message._id;
         await connection.save();
 
-        if (status === "accepted") new_connection_added(connection);
+        if (connection.status === "accepted") new_connection_added(connection);
 
         return res
           .status(200)
