@@ -1,8 +1,12 @@
 const SOCKET_EVENT = {
   CONNECTION: "connection",
+  DISCONNECT: "disconnect",
 
   CONNECTED: "CONNECTED",
   NEW_CONNECTION_ADDED: "NEW_CONNECTION_ADDED",
+
+  STATUS_UPDATE: (userId) => `STATUS-UPDATE-${userId}`,
+  GET_STATUS: "GET_STATUS",
 };
 
 module.exports = SOCKET_EVENT;
