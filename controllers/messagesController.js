@@ -29,7 +29,7 @@ const messagesController = {
       }
 
       const messages = await DirectMessage.find({ on: connection_id })
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: -1 })
         .skip(parseInt(offset))
         .limit(parseInt(limit))
         .exec();
