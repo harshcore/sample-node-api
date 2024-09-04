@@ -26,6 +26,7 @@ const connection_request_functions = {
       status: last_message.status,
       createdAt: last_message.createdAt,
       updatedAt: last_message.updatedAt,
+      type: last_message.type,
     };
 
     const connection_data1 = {
