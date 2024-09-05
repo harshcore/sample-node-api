@@ -1,5 +1,6 @@
 const SOCKET_EVENT = require("./event.types");
 const user_status_functions = require("./functions/user_status");
+const messageStatusHandler = require("./handlers/messageStatusHandler");
 const userStatusHandler = require("./handlers/userStatusHandler");
 const authMiddleware = require("./middlewares/authMiddleware");
 
@@ -18,6 +19,7 @@ function initSocket(io) {
     });
 
     userStatusHandler(io, socket);
+    messageStatusHandler(io, socket);
   });
 }
 
