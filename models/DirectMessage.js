@@ -28,7 +28,7 @@ const directMessageSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["seen", "delivered", "sent"],
+      enum: ["seen", "sent"],
       default: "sent",
     },
   },
